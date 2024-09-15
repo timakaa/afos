@@ -1,36 +1,44 @@
 "use client";
 
-import { telegram } from "@/lib/telegram";
+import { IUserData } from "@/interfaces/User.interface";
 import WebApp from "@twa-dev/sdk";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AccessLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user } = telegram();
+  const [user, setUser] = useState<IUserData | null>(null);
   const navigate = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    const handleMainbuttonClicked = () => {
-      navigate.push("/");
-    };
-
-    if (pathname !== "/") {
-      WebApp.BackButton.show();
-    } else {
-      WebApp.BackButton.hide();
+    if (WebApp.initDataUnsafe.user) {
+      setUser(WebApp.initDataUnsafe.user);
     }
+  }, []);
 
-    WebApp.onEvent("backButtonClicked", handleMainbuttonClicked);
+  useEffect(() => {
+    if (WebApp) {
+      const handleMainbuttonClicked = () => {
+        navigate.push("/");
+      };
 
-    return () => {
-      WebApp.offEvent("backButtonClicked", handleMainbuttonClicked);
-      WebApp.BackButton.hide();
-    };
+      if (pathname !== "/") {
+        WebApp.BackButton.show();
+      } else {
+        WebApp.BackButton.hide();
+      }
+
+      WebApp.onEvent("backButtonClicked", handleMainbuttonClicked);
+
+      return () => {
+        WebApp.offEvent("backButtonClicked", handleMainbuttonClicked);
+        WebApp.BackButton.hide();
+      };
+    }
   }, [pathname, navigate]);
 
   if (!user?.username) {

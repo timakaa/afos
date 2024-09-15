@@ -1,9 +1,11 @@
+"use client";
+
 import { useEffect } from "react";
 
 export function useClickAway({
   func,
   refs,
-  container = document,
+  container = typeof window !== "undefined" ? window.document : null,
   mode,
 }: {
   func: () => void;
