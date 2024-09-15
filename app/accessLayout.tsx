@@ -18,7 +18,7 @@ export default function AccessLayout({
     if (WebApp.initDataUnsafe.user) {
       setUser(WebApp.initDataUnsafe.user);
     }
-  }, []);
+  }, [WebApp]);
 
   useEffect(() => {
     if (WebApp) {
