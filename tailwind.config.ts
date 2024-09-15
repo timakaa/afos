@@ -1,3 +1,4 @@
+import autoprefixer from "autoprefixer";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -14,6 +15,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [autoprefixer],
 };
 export default config;
