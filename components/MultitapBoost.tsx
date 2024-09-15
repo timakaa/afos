@@ -9,7 +9,7 @@ import Modal from "./ui/Modal";
 const MultitapBoost = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [level, _] = useState(3);
+  const [level] = useState(3);
 
   const infoButtonRef = useRef(null);
   const infoRef = useRef(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import { telegram } from "@/lib/telegram";
+import WebApp from "@twa-dev/sdk";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -12,6 +13,25 @@ export default function AccessLayout({
   const { user } = telegram();
   const navigate = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    const handleMainbuttonClicked = () => {
+      navigate.push("/");
+    };
+
+    if (pathname !== "/") {
+      WebApp.BackButton.show();
+    } else {
+      WebApp.BackButton.hide();
+    }
+
+    WebApp.onEvent("backButtonClicked", handleMainbuttonClicked);
+
+    return () => {
+      WebApp.offEvent("backButtonClicked", handleMainbuttonClicked);
+      WebApp.BackButton.hide();
+    };
+  }, [pathname, navigate]);
 
   if (!user?.username) {
     return (
@@ -33,30 +53,6 @@ export default function AccessLayout({
       </div>
     );
   }
-
-  useEffect(() => {
-    if (pathname !== "/") {
-      (window as any).Telegram?.WebApp.BackButton.show();
-    }
-    if (pathname === "/") {
-      (window as any).Telegram?.WebApp.BackButton.hide();
-    }
-
-    const handleMainbuttonClicked = () => {
-      navigate.push("/");
-    };
-
-    (window as any).Telegram?.WebApp.onEvent(
-      "backButtonClicked",
-      handleMainbuttonClicked,
-    );
-
-    return () =>
-      (window as any).Telegram?.WebApp.offEvent(
-        "backButtonClicked",
-        handleMainbuttonClicked,
-      );
-  }, [pathname]);
 
   // if (!isMobileDevice()) {
   //   return (
