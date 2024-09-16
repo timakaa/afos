@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Nav from "@/components/Nav";
-import AccessLayout from "./accessLayout";
 import AuthLayout from "./authLayout";
 
 export const metadata: Metadata = {
@@ -19,10 +18,8 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <AuthLayout>
           <div className='bg-black text-white relative min-h-screen flex flex-col'>
-            <AccessLayout>
-              <main className='flex-grow mb-28'>{children}</main>
-              <Nav />
-            </AccessLayout>
+            <main className='flex-grow mb-28'>{children}</main>
+            <Nav />
           </div>
         </AuthLayout>
       </body>

@@ -37,6 +37,7 @@ export function validateTelegramWebAppData(
   const hash = initData.get("hash");
 
   console.log("INIT DATA -------------");
+  console.log(Object.fromEntries(initData.entries()));
 
   if (!hash) {
     return {
@@ -91,7 +92,6 @@ export function validateTelegramWebAppData(
     const userString = validatedData["user"];
     if (userString) {
       try {
-        console.log(JSON.parse(userString));
         user = JSON.parse(userString);
       } catch (error) {
         console.log("Error parsing user data ", error);

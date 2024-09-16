@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     cookies().set("session", session, { expires, httpOnly: true });
 
-    return NextResponse.json({ message: "Authentication successfull" });
+    return NextResponse.json({ user: validationResult.user });
   } else {
     return NextResponse.json(
       { message: validationResult.message },

@@ -17,7 +17,7 @@ export type UserStore = UserState & UserActions;
 
 export const defaultInitState: UserState = {
   user: {
-    id: 0,
+    telegramId: 0,
     first_name: "",
     is_premium: false,
     language_code: "",

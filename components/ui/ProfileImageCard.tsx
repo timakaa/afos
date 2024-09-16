@@ -36,7 +36,7 @@ const ProfileImageCard = () => {
           <Image
             alt=''
             src={testpackblur}
-            className={`absolute max-h-[300px] mx-auto inset-0 rounded-lg bg-center ${
+            className={`absolute max-h-[300px] mx-auto inset-0 rounded-lg object-cover bg-center ${
               isClicked ? "opacity-0" : "opacity-100"
             } ${
               isDelete ? "hidden" : "block"
@@ -46,7 +46,7 @@ const ProfileImageCard = () => {
             onClick={() => setIsModalOpen(true)}
             src={testpack}
             alt=''
-            className='absolute max-h-[300px] mx-auto inset-0 rounded-lg bg-center duration-100 bg-no-repeat bg-cover'
+            className='absolute max-h-[300px] object-cover mx-auto inset-0 rounded-lg bg-center duration-100 bg-no-repeat bg-cover'
           />
         </div>
       </button>
