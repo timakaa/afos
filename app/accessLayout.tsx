@@ -1,16 +1,17 @@
 "use client";
 
-import { IUserData } from "@/interfaces/User.interface";
+import { userStore } from "@/store/user.store";
 import WebApp from "@twa-dev/sdk";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function AccessLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [user, setUser] = useState<IUserData | null>(null);
+  const { setUser, user } = userStore();
+
   const navigate = useRouter();
   const pathname = usePathname();
 
@@ -18,12 +19,13 @@ export default function AccessLayout({
     if (WebApp.initDataUnsafe.user) {
       setUser(WebApp.initDataUnsafe.user);
     }
-  }, [WebApp]);
+  }, [setUser]);
 
   useEffect(() => {
     if (WebApp) {
       const handleMainbuttonClicked = () => {
         navigate.push("/");
+        WebApp.BackButton.hide();
       };
 
       if (pathname !== "/") {

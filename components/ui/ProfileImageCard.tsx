@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import testpackblur from "../../public/test_pack_blur.jpg";
 import testpack from "../../public/test_pack.jpg";
 import Modal from "./Modal";
@@ -12,6 +12,15 @@ import Image from "next/image";
 const ProfileImageCard = () => {
   const [isClicked, setIsClicked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
+
+  useEffect(() => {
+    if (isClicked) {
+      setTimeout(() => {
+        setIsDelete(true);
+      }, 200);
+    }
+  }, [isClicked]);
 
   return (
     <>
@@ -28,7 +37,9 @@ const ProfileImageCard = () => {
             alt=''
             src={testpackblur}
             className={`absolute max-h-[300px] mx-auto inset-0 rounded-lg bg-center ${
-              isClicked ? "hidden" : "block"
+              isClicked ? "opacity-0" : "opacity-100"
+            } ${
+              isDelete ? "hidden" : "block"
             } z-10 duration-100 bg-no-repeat bg-cover`}
           />
           <Image

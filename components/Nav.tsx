@@ -31,14 +31,15 @@ const Nav = () => {
       ></div>
       <Link
         href='/'
+        prefetch
         className={`text-4xl z-10 duration-100 ${
           pathname === "/" ? "text-black" : "text-white"
         }`}
       >
         <AiOutlineHome />
       </Link>
-
       <Link
+        prefetch
         href='/shop'
         className={`text-4xl z-10 duration-100 ${
           pathname.startsWith("/shop") ? "text-black" : "text-white"
@@ -46,8 +47,8 @@ const Nav = () => {
       >
         <AiOutlineShopping />
       </Link>
-
       <Link
+        prefetch
         href='/profile'
         className={`text-4xl z-10 duration-100 ${
           pathname === "/profile" ? "text-black" : "text-white"
