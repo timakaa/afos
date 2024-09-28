@@ -2,7 +2,7 @@ import ShopPics from "@/components/ShopPics";
 
 const page = () => {
   return (
-    <div>
+    <div className='pb-20'>
       <ShopPics />
     </div>
   );

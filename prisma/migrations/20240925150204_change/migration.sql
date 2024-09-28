@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "coins" SET DEFAULT 0,
+ALTER COLUMN "coinsBalance" SET DEFAULT 0;

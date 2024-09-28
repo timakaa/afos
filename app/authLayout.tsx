@@ -15,13 +15,12 @@ export default function AuthLayout({
   const router = useRouter();
   const { setUser, user, setIsAuth } = userStore();
 
-  const navigate = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     if (WebApp) {
       const handleMainbuttonClicked = () => {
-        navigate.push("/");
+        router.push("/");
         WebApp.BackButton.hide();
       };
 
@@ -38,37 +37,50 @@ export default function AuthLayout({
         WebApp.BackButton.hide();
       };
     }
-  }, [pathname, navigate]);
+  }, [pathname, router]);
 
   useEffect(() => {
     const authenticateUser = async () => {
       const WebApp = (await import("@twa-dev/sdk")).default;
       WebApp?.ready();
       const initData = WebApp?.initData;
+      const initDataUnsafe = WebApp?.initDataUnsafe;
+
+      console.log(initDataUnsafe);
+      console.log(
+        `Приложение открыто с параметром start: ${initDataUnsafe.start_param}`,
+      );
 
       if (initData) {
+        const initDataParams = new URLSearchParams(initData);
+        const initDataParamsUser = JSON.parse(
+          initDataParams.get("user") || "{}",
+        );
+
+        if (!initDataParamsUser.username) return;
+
         try {
           setIsLoading(true);
-          const response = await fetch("/api/auth", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          const response = await fetch(
+            `/api/auth${
+              initDataUnsafe.start_param
+                ? `?start=${initDataUnsafe.start_param}`
+                : ""
+            }`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ initData }),
             },
-            body: JSON.stringify({ initData }),
-          });
+          );
 
           if (response.ok) {
             setIsAuth(true);
             const data = await response.json();
             console.log(data);
-            setUser({
-              telegramId: data.user.id,
-              username: data.user.username,
-              first_name: data.user.first_name,
-              last_name: data.user.last_name,
-              is_premium: data.user.is_premium,
-              language_code: data.user.language_code,
-            });
+            setUser(data.user);
             router.refresh();
           } else {
             console.log("Authentication failed");

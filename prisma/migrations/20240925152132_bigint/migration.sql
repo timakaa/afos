@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "createdAt" SET DATA TYPE BIGINT,
+ALTER COLUMN "lastCoinsUpdateTimestamp" SET DATA TYPE BIGINT,
+ALTER COLUMN "lastEnergyUpdateTimestamp" SET DATA TYPE BIGINT;

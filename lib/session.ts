@@ -4,8 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 const key = new TextEncoder().encode(process.env.JWT_SECRET);
 
-export const SESSION_DURATION = 60 * 60 * 1000;
+export const SESSION_DURATION = 1000 * 60 * 60; // 1 hour
 
+// Encrypt the payload
 export async function encrypt(payload: any) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
@@ -14,6 +15,7 @@ export async function encrypt(payload: any) {
     .sign(key);
 }
 
+// Decrypt the token
 export async function decrypt(input: string): Promise<any> {
   const { payload } = await jwtVerify(input, key, {
     algorithms: ["HS256"],
@@ -21,6 +23,7 @@ export async function decrypt(input: string): Promise<any> {
   return payload;
 }
 
+// Get session
 export async function getSession() {
   const session = cookies().get("session")?.value;
   if (!session) return null;
@@ -30,6 +33,8 @@ export async function getSession() {
 export async function updateSession(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
   if (!session) return;
+
+  console.log("UPDATED ______________");
 
   const parsed = await decrypt(session);
   parsed.expires = new Date(Date.now() + SESSION_DURATION);
