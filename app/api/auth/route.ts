@@ -1,3 +1,4 @@
+import { maxPossibleEnergyTable } from "@/lib/boosts";
 import { prisma } from "@/lib/prisma";
 import { encrypt, SESSION_DURATION } from "@/lib/session";
 import { validateTelegramWebAppData } from "@/lib/telegramAuth";
@@ -12,7 +13,7 @@ async function createUserWithReferral(
 ) {
   let newUser;
 
-  if (referralTelegramId) {
+  if (referralTelegramId && referralTelegramId !== telegramId) {
     const referralUser = await prisma.user.findUnique({
       where: { telegramId: referralTelegramId },
     });
@@ -27,9 +28,6 @@ async function createUserWithReferral(
           referredBy: {
             connect: { id: referralUser.id },
           },
-          lastCoinsUpdateTimestamp: Date.now(),
-          lastEnergyUpdateTimestamp: Date.now(),
-          createdAt: Date.now(),
         },
         include: {
           referrals: true,
@@ -66,9 +64,6 @@ async function createUserWithReferral(
         data: {
           username,
           telegramId,
-          lastCoinsUpdateTimestamp: Date.now(),
-          lastEnergyUpdateTimestamp: Date.now(),
-          createdAt: Date.now(),
         },
         include: {
           referrals: true,
@@ -84,9 +79,6 @@ async function createUserWithReferral(
       data: {
         username,
         telegramId,
-        lastCoinsUpdateTimestamp: Date.now(),
-        lastEnergyUpdateTimestamp: Date.now(),
-        createdAt: Date.now(),
       },
       include: {
         referrals: true,
@@ -115,7 +107,41 @@ async function findOrCreateUser(
     },
   });
 
-  if (!user) {
+  const currentTime = new Date();
+
+  if (user) {
+    // Calculate energy recovery
+    const energyRecoveryRate = 1; // 1 energy per second
+    const timeElapsed =
+      (currentTime.getTime() - user.lastEnergyUpdateTimestamp.getTime()) / 1000;
+    const energyRecovered = Math.min(
+      timeElapsed * energyRecoveryRate,
+      maxPossibleEnergyTable[
+        user.energyLimitIndex as keyof typeof maxPossibleEnergyTable
+      ] || maxPossibleEnergyTable[0],
+    );
+
+    // Update user energy
+    user = await prisma.user.update({
+      where: { telegramId },
+      data: {
+        energy: Math.min(
+          user.energy + energyRecovered,
+          maxPossibleEnergyTable[
+            user.energyLimitIndex as keyof typeof maxPossibleEnergyTable
+          ] || maxPossibleEnergyTable[0],
+        ),
+        lastEnergyUpdateTimestamp: currentTime,
+      },
+      include: {
+        referrals: true,
+        userPacks: true,
+        tasks: true,
+        referredBy: true,
+      },
+    });
+  } else {
+    // Create new user with initial energy
     user = await createUserWithReferral(
       telegramId,
       username,

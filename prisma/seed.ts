@@ -8,9 +8,6 @@ async function main() {
       username: "Alice",
       telegramId: 3124213,
       coins: 444,
-      lastCoinsUpdateTimestamp: Date.now(),
-      lastEnergyUpdateTimestamp: Date.now(),
-      createdAt: Date.now(),
     },
   });
   console.log(user);

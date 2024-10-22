@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "lastCoinsUpdateTimestamp" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "lastEnergyUpdateTimestamp" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;

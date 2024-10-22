@@ -26,12 +26,12 @@ model User {
   referredBy                User?      @relation("Refferals", fields: [referredById], references: [id])
   referredById              Int?
   tasks                     Task[]
+  lastCoinsUpdateTimestamp  DateTime   @default(now())
+  lastEnergyUpdateTimestamp DateTime   @default(now())
   energy                    Int        @default(500)
   multitapLevelIndex        Int        @default(0)
   energyLimitIndex          Int        @default(0)
-  lastCoinsUpdateTimestamp  BigInt
-  lastEnergyUpdateTimestamp BigInt
-  createdAt                 BigInt
+  createdAt                 DateTime   @default(now())
 }
 
 model Task {

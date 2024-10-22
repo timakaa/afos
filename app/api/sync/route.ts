@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import {
+  maxPossibleEnergyTable,
+  multitapBoostCoinsPerClick,
+} from "@/lib/boosts";
 
 interface SyncRequest {
   coins: number;
@@ -8,26 +12,14 @@ interface SyncRequest {
   timeStamp: number;
 }
 
-const ENERGY_RECOVERY_RATE = 1; // единица энергии в секунду
-const MAX_ENERGY = 100; // Максимальная энергия
-
-// Объект, определяющий количество коинов за клик для каждого уровня
-const coinsPerClick: { [key: number]: number } = {
-  1: 1,
-  2: 2,
-  3: 3,
-  4: 5,
-  5: 8,
-  // Добавьте дополнительные уровни по необходимости
-};
-
 export async function POST(request: Request) {
   try {
     const session = await getSession();
 
     if (!session || !session.user) {
+      console.log("Unauthorized access");
       return NextResponse.json(
-        { error: "Неавторизованный доступ" },
+        { error: "Unauthorized access" },
         { status: 401 },
       );
     }
@@ -40,112 +32,95 @@ export async function POST(request: Request) {
     // Current time in seconds
     const currentTime = Date.now();
 
-    // Проверка timeStamp
+    // Check timeStamp
     if (timeStamp > currentTime) {
+      console.log("Invalid timestamp: time cannot be in the future.");
       return NextResponse.json(
-        { error: "Некорректный timestamp: время не может быть в будущем." },
+        { error: "Invalid timestamp: time cannot be in the future." },
         { status: 400 },
       );
     }
 
-    if (typeof coins !== "number" || coins < 0) {
+    if (coins < 0) {
+      console.log("Invalid number of coins.");
       return NextResponse.json(
-        { error: "Неверное количество коинов." },
+        { error: "Invalid number of coins." },
         { status: 400 },
       );
     }
 
-    if (typeof energy !== "number" || energy < 0) {
+    if (energy < 0) {
+      console.log("Invalid number of energy.");
       return NextResponse.json(
-        { error: "Неверное количество энергии." },
+        { error: "Invalid number of energy." },
         { status: 400 },
       );
     }
 
-    // Получаем пользователя из базы данных
+    // Find user
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Пользователь не найден." },
-        { status: 404 },
-      );
+      console.log("User not found.");
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    // Вычисляем время, прошедшее с последнего клика
-    const elapsedTime = timeStamp - (user.lastCoinsUpdateTimestamp || 0);
+    const energyLastSync = user.energy;
 
-    if (elapsedTime < 0) {
-      return NextResponse.json(
-        {
-          error:
-            "Некорректный timestamp: время должно быть больше или равно последнему клику.",
-        },
-        { status: 400 },
-      );
-    }
-
-    // Восстанавливаем энергию
-    const recoveredEnergy = Math.floor(elapsedTime * ENERGY_RECOVERY_RATE);
-    const maxPossibleEnergy = Math.min(
-      (user.energy || 0) + recoveredEnergy,
-      MAX_ENERGY,
+    const energyRecoveryRate = 1; // 1 energy per second
+    const energyLimit =
+      maxPossibleEnergyTable[
+        (user.energyLimitIndex || 0) as keyof typeof maxPossibleEnergyTable
+      ] || maxPossibleEnergyTable[0]; // Maximum energy
+    const coinsPerClick =
+      multitapBoostCoinsPerClick[
+        (user.multitapLevelIndex ||
+          0) as keyof typeof multitapBoostCoinsPerClick
+      ] || multitapBoostCoinsPerClick[0];
+    const energyRecovered = Math.min(
+      ((currentTime - timeStamp) / 1000) * energyRecoveryRate,
+      energyLimit,
     );
 
-    // Рассчитываем максимально возможные коины за прошедшее время
-    const levelIndex = user.multitapLevelIndex || 1;
-    const coinsPerThisClick = coinsPerClick[levelIndex] || 1;
-    const maxPossibleCoins =
-      Math.floor(maxPossibleEnergy / 10) * coinsPerThisClick; // Предполагаем, что sent_energy = 10
+    const maxAccessEnergy = Math.min(
+      energyLastSync + energyRecovered - energy,
+      energyLimit,
+    );
 
-    // Валидация количества коинов
-    if (coins > maxPossibleCoins) {
+    if (energy > maxAccessEnergy) {
+      console.log("Invalid number of energy.");
       return NextResponse.json(
-        {
-          error: `Некорректное количество коинов: максимальное возможное за это время - ${maxPossibleCoins}.`,
-        },
+        { error: "Invalid number of energy." },
         { status: 400 },
       );
     }
 
-    // Валидация энергии
-    if (
-      (user.energy || 0) +
-        recoveredEnergy -
-        coinsPerThisClick * (coins / coinsPerThisClick) <
-      energy
-    ) {
+    const maxEarnedCoins = maxAccessEnergy * coinsPerClick;
+
+    if (coins > maxEarnedCoins) {
+      console.log("Invalid number of coins.");
       return NextResponse.json(
-        { error: "Отправленная энергия превышает допустимую." },
+        { error: "Invalid number of coins." },
         { status: 400 },
       );
     }
 
-    // Рассчитываем возможные клики на основе отправленной энергии
-    const possible_clicks = Math.floor(maxPossibleEnergy / 10); // Предполагаем, что sent_energy = 10
-
-    // Обновляем энергию и коины пользователя
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        energy: maxPossibleEnergy - possible_clicks * 10,
-        lastCoinsUpdateTimestamp: timeStamp,
-        coins: (user.coins || 0) + coins,
+        coins: user.coins + coins,
+        coinsBalance: user.coinsBalance + coins,
+        energy: energy,
+        lastCoinsUpdateTimestamp: new Date(),
+        lastEnergyUpdateTimestamp: new Date(),
       },
     });
-    return NextResponse.json(
-      {
-        possible_clicks,
-        remaining_energy: user.energy,
-        coins_earned: coins,
-        total_coins: user.coins,
-      },
-      { status: 200 },
-    );
+
+    return NextResponse.json({ user: updatedUser }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Внутренняя ошибка сервера." },
+      { error: "Internal server error." },
       { status: 500 },
     );
   }

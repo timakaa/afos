@@ -9,10 +9,11 @@ export interface IUserData {
   referrals: IUserData[];
   referredBy?: IUserData;
   refferedById?: number;
-  lastCoinsUpdateTimestamp: number;
-  lastEnergyUpdateTimestamp: number;
+  lastCoinsUpdateTimestamp: Date;
+  lastEnergyUpdateTimestamp: Date;
   tasks?: ITask[];
   userPacks?: IUserPack[];
+  createdAt: Date;
 }
 
 export interface ITask {

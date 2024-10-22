@@ -1,7 +1,9 @@
 "use client";
 
 import { ITask, IUserData } from "@/interfaces/User.interface";
+import { multitapBoostCoinsPerClick } from "@/lib/boosts";
 import { debounce } from "@/lib/debounce";
+import { Dispatch, SetStateAction } from "react";
 import toast from "react-hot-toast";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -16,7 +18,10 @@ export interface UserActions {
   setIsAuth: (isAuth: boolean) => void;
   setTasks: (tasks: ITask[]) => void;
   setCoins: (coins: number) => void;
-  debouncedSync: () => void;
+  debouncedSync: (
+    unsyncCoins: number,
+    setUnsyncCoins: Dispatch<SetStateAction<number>>,
+  ) => void;
 }
 
 export type UserStore = UserState & UserActions;
@@ -34,8 +39,9 @@ export const defaultInitState: UserState = {
     energy: 0,
     energyLimitIndex: 0,
     multitapLevelIndex: 0,
-    lastCoinsUpdateTimestamp: 0,
-    lastEnergyUpdateTimestamp: 0,
+    lastCoinsUpdateTimestamp: new Date(),
+    lastEnergyUpdateTimestamp: new Date(),
+    createdAt: new Date(),
   },
   isAuth: false,
 };
@@ -49,21 +55,26 @@ export const userStore = create<UserStore>()(
       setTasks: (tasks) => set((state) => ({ user: { ...state.user, tasks } })),
       setCoins: (coins) =>
         set((state) => ({ user: { ...state.user, coinsBalance: coins } })),
-      debouncedSync: debounce(async () => {
+      debouncedSync: debounce(async (unsyncCoins, setUnsyncCoins) => {
         const {
-          user: { coinsBalance, energy },
+          user: { energy, multitapLevelIndex },
         } = get();
         try {
           const response = await fetch("/api/sync", {
             method: "POST",
             body: JSON.stringify({
-              unsynchronizedCoins: coinsBalance,
-              syncTimestamp: Date.now(),
-              currentEnergy: energy,
+              coins:
+                (unsyncCoins + 1) *
+                  multitapBoostCoinsPerClick[
+                    multitapLevelIndex as keyof typeof multitapBoostCoinsPerClick
+                  ] || 1,
+              timeStamp: Date.now(),
+              energy: energy,
             }),
           });
           if (response.ok) {
             toast.success("Coins saved");
+            setUnsyncCoins(0);
           } else {
             toast.error("Error while saving coins");
           }

@@ -1,5 +1,6 @@
 "use client";
 
+import { multitapBoostCoinsPerClick } from "@/lib/boosts";
 import { isMobileDevice } from "@/lib/isMobileDevice";
 import { userStore } from "@/store/user.store";
 import { count } from "console";
@@ -9,17 +10,21 @@ import toast from "react-hot-toast";
 const MainClickButton = () => {
   const {
     debouncedSync,
-    user: { coinsBalance },
+    user: { coinsBalance, multitapLevelIndex },
     setCoins,
   } = userStore();
   const [clicks, setClicks] = useState<{ id: number; x: number; y: number }[]>(
     [],
   );
+  const [unsyncCoins, setUnsyncCoins] = useState(0);
 
-  const pointsToAdd = 5;
+  const pointsToAdd =
+    multitapBoostCoinsPerClick[
+      multitapLevelIndex as keyof typeof multitapBoostCoinsPerClick
+    ] || 1;
 
   const handleCardClick = (touches: React.TouchList) => {
-    const newClicks: any = [];
+    const newClicks: { id: number; x: number; y: number }[] = [];
 
     for (let i = 0; i < touches.length; i++) {
       const touch = touches[i];
@@ -40,7 +45,8 @@ const MainClickButton = () => {
 
     setCoins(coinsBalance + touches.length * pointsToAdd);
     setClicks((prevClicks) => [...prevClicks, ...newClicks]);
-    debouncedSync();
+    setUnsyncCoins((prev) => prev + 1);
+    debouncedSync(unsyncCoins, setUnsyncCoins);
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -68,7 +74,8 @@ const MainClickButton = () => {
 
     setCoins(coinsBalance + pointsToAdd);
     setClicks((prevClicks) => [...prevClicks, ...newClicks]);
-    debouncedSync();
+    setUnsyncCoins((prev) => prev + 1);
+    debouncedSync(unsyncCoins, setUnsyncCoins);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
