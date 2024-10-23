@@ -3,15 +3,14 @@
 import { multitapBoostCoinsPerClick } from "@/lib/boosts";
 import { isMobileDevice } from "@/lib/isMobileDevice";
 import { userStore } from "@/store/user.store";
-import { count } from "console";
 import { useState } from "react";
-import toast from "react-hot-toast";
 
 const MainClickButton = () => {
   const {
     debouncedSync,
-    user: { coinsBalance, multitapLevelIndex },
+    user: { coinsBalance, multitapLevelIndex, energy },
     setCoins,
+    setEnergy,
   } = userStore();
   const [clicks, setClicks] = useState<{ id: number; x: number; y: number }[]>(
     [],
@@ -40,12 +39,17 @@ const MainClickButton = () => {
         card.style.transform = "";
       }, 100);
 
-      newClicks.push({ id: Date.now() + i, x: touch.pageX, y: touch.pageY });
+      // Check if there is enough energy before processing the click
+      if (energy > 0) {
+        setEnergy(energy - 1);
+        newClicks.push({ id: Date.now() + i, x: touch.pageX, y: touch.pageY });
+      }
     }
 
-    setCoins(coinsBalance + touches.length * pointsToAdd);
+    // Update coins only for the clicks that were processed
+    setCoins(coinsBalance + newClicks.length * pointsToAdd);
     setClicks((prevClicks) => [...prevClicks, ...newClicks]);
-    setUnsyncCoins((prev) => prev + 1);
+    setUnsyncCoins((prev) => prev + newClicks.length);
     debouncedSync(unsyncCoins, setUnsyncCoins);
   };
 
@@ -89,8 +93,8 @@ const MainClickButton = () => {
   const priceFormatter = new Intl.NumberFormat("ja-JP", {});
 
   return (
-    <div className='grid p-4 relative z-10 place-items-center'>
-      <div className='flex justify-center mb-16'>
+    <>
+      <div className='flex justify-center mb-10'>
         <div className='flex items-center gap-x-5 -ml-4'>
           <span>
             <div className='w-12 h-12 shadow-[inset_0px_-10px_30px_rgba(0,0,0,0.2)] from-zinc-700 duration-[0.05s] to-[#232329] bg-gradient-to-b rounded-full relative flex justify-center items-center text-black text-9xl font-bold before:bg-gradient-to-br before:shadow-[inset_0px_0px_30px_rgba(10,10,10,0.7)] before:from-zinc-800 before:to-zinc-600 before:content-[""] before:absolute before:block before:w-8 before:h-8 before:rounded-full before:left-1/2 before:-translate-x-1/2 before:bg-center'></div>
@@ -120,7 +124,7 @@ const MainClickButton = () => {
           +{pointsToAdd}
         </div>
       ))}
-    </div>
+    </>
   );
 };
 

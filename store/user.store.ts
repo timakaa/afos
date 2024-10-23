@@ -22,6 +22,7 @@ export interface UserActions {
     unsyncCoins: number,
     setUnsyncCoins: Dispatch<SetStateAction<number>>,
   ) => void;
+  setEnergy: (energy: number) => void;
 }
 
 export type UserStore = UserState & UserActions;
@@ -55,6 +56,8 @@ export const userStore = create<UserStore>()(
       setTasks: (tasks) => set((state) => ({ user: { ...state.user, tasks } })),
       setCoins: (coins) =>
         set((state) => ({ user: { ...state.user, coinsBalance: coins } })),
+      setEnergy: (energy) =>
+        set((state) => ({ user: { ...state.user, energy } })),
       debouncedSync: debounce(async (unsyncCoins, setUnsyncCoins) => {
         const {
           user: { energy, multitapLevelIndex },
@@ -67,7 +70,7 @@ export const userStore = create<UserStore>()(
                 (unsyncCoins + 1) *
                   multitapBoostCoinsPerClick[
                     multitapLevelIndex as keyof typeof multitapBoostCoinsPerClick
-                  ] || 1,
+                  ] || multitapBoostCoinsPerClick[0],
               timeStamp: Date.now(),
               energy: energy,
             }),

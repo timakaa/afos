@@ -1,6 +1,7 @@
 "use client";
 
 import Spinner from "@/components/ui/Spinner/Spinner";
+import { maxPossibleEnergyTable } from "@/lib/boosts";
 import { userStore } from "@/store/user.store";
 import WebApp from "@twa-dev/sdk";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,7 +14,7 @@ export default function AuthLayout({
 }>) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { setUser, user, setIsAuth } = userStore();
+  const { setUser, user, setIsAuth, setEnergy } = userStore();
 
   const pathname = usePathname();
 
@@ -80,7 +81,7 @@ export default function AuthLayout({
             setIsAuth(true);
             const data = await response.json();
             console.log(data);
-            setUser(data.user);
+            setUser({ ...data.user, energy: data.user.energy });
             router.refresh();
           } else {
             console.log("Authentication failed");
@@ -99,6 +100,21 @@ export default function AuthLayout({
 
     authenticateUser();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const maxEnergy =
+        maxPossibleEnergyTable[
+          user.energyLimitIndex as keyof typeof maxPossibleEnergyTable
+        ];
+
+      if (user.energy < maxEnergy) {
+        setEnergy(Math.min(user.energy + 1, maxEnergy));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [user.energy, user.energyLimitIndex]);
 
   if (isLoading)
     return (
