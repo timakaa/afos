@@ -14,7 +14,7 @@ const Nav = () => {
   let activeIndex;
   if (pathname === "/") {
     activeIndex = 0;
-  } else if (pathname.startsWith("/shop")) {
+  } else if (pathname.startsWith("/shop") || pathname.startsWith("/pack")) {
     activeIndex = 1;
   } else if (pathname.startsWith("/tasks")) {
     activeIndex = 2;
@@ -27,11 +27,11 @@ const Nav = () => {
   }
 
   const navItems = [
-    { href: "/", icon: <AiOutlineHome /> },
-    { href: "/shop", icon: <AiOutlineShopping /> },
-    { href: "/tasks", icon: <PiCoins /> },
-    { href: "/refs", icon: <HiOutlineUserGroup /> },
-    { href: "/profile", icon: <CgProfile /> },
+    { href: ["/"], icon: <AiOutlineHome /> },
+    { href: ["/shop", "/pack"], icon: <AiOutlineShopping /> },
+    { href: ["/tasks"], icon: <PiCoins /> },
+    { href: ["/refs"], icon: <HiOutlineUserGroup /> },
+    { href: ["/profile"], icon: <CgProfile /> },
   ];
 
   return (
@@ -46,12 +46,12 @@ const Nav = () => {
       {navItems.map((item, index) => (
         <Link
           key={index}
-          href={item.href}
+          href={item.href[0]}
           className={`text-2xl z-10 duration-100 ${
             (
-              item.href === "/"
+              item.href[0] === "/"
                 ? pathname === "/"
-                : pathname.startsWith(item.href)
+                : item.href.some((href) => pathname.startsWith(href))
             )
               ? "text-black"
               : "text-white"

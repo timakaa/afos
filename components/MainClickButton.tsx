@@ -3,7 +3,7 @@
 import { multitapBoostCoinsPerClick } from "@/lib/boosts";
 import { isMobileDevice } from "@/lib/isMobileDevice";
 import { userStore } from "@/store/user.store";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const MainClickButton = () => {
   const {
@@ -16,6 +16,7 @@ const MainClickButton = () => {
     [],
   );
   const [unsyncCoins, setUnsyncCoins] = useState(0);
+  const [energyDepleted, setEnergyDepleted] = useState(false);
 
   const pointsToAdd =
     multitapBoostCoinsPerClick[
@@ -23,6 +24,13 @@ const MainClickButton = () => {
     ] || 1;
 
   const handleCardClick = (touches: React.TouchList) => {
+    if (energy === 0) {
+      setEnergyDepleted(true);
+      return;
+    }
+
+    if (energyDepleted && energy < 5) return; // Prevent clicks if energy was depleted and hasn't recovered to 5
+
     const newClicks: { id: number; x: number; y: number }[] = [];
 
     for (let i = 0; i < touches.length; i++) {
@@ -50,7 +58,7 @@ const MainClickButton = () => {
     setCoins(coinsBalance + newClicks.length * pointsToAdd);
     setClicks((prevClicks) => [...prevClicks, ...newClicks]);
     setUnsyncCoins((prev) => prev + newClicks.length);
-    debouncedSync(unsyncCoins, setUnsyncCoins);
+    debouncedSync(unsyncCoins, setUnsyncCoins, Date.now());
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -60,6 +68,13 @@ const MainClickButton = () => {
   const handleCardClickByMouse = async (
     e: React.MouseEvent<HTMLDivElement>,
   ) => {
+    if (energy === 0) {
+      setEnergyDepleted(true);
+      return;
+    }
+
+    if (energyDepleted && energy < 5) return; // Prevent clicks if energy was depleted and hasn't recovered to 5
+
     const newClicks: { id: number; x: number; y: number }[] = [];
 
     const card = e.currentTarget;
@@ -74,12 +89,15 @@ const MainClickButton = () => {
       card.style.transform = "";
     }, 100);
 
-    newClicks.push({ id: Date.now(), x: e.clientX, y: e.clientY });
+    if (energy > 0) {
+      setEnergy(energy - 1);
+      newClicks.push({ id: Date.now(), x: e.clientX, y: e.clientY });
+    }
 
-    setCoins(coinsBalance + pointsToAdd);
+    setCoins(coinsBalance + newClicks.length * pointsToAdd);
     setClicks((prevClicks) => [...prevClicks, ...newClicks]);
-    setUnsyncCoins((prev) => prev + 1);
-    debouncedSync(unsyncCoins, setUnsyncCoins);
+    setUnsyncCoins((prev) => prev + newClicks.length);
+    debouncedSync(unsyncCoins, setUnsyncCoins, Date.now());
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -91,6 +109,12 @@ const MainClickButton = () => {
   };
 
   const priceFormatter = new Intl.NumberFormat("ja-JP", {});
+
+  useEffect(() => {
+    if (energy >= 5) {
+      setEnergyDepleted(false);
+    }
+  }, [energy]);
 
   return (
     <>

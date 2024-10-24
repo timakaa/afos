@@ -2,11 +2,29 @@
 
 import { maxPossibleEnergyTable } from "@/lib/boosts";
 import { userStore } from "@/store/user.store";
-import React from "react";
+import { useEffect, useState } from "react";
 import LightIcon from "./LightIcon";
 
 const EnergyBar = () => {
   const user = userStore((state) => state.user);
+  const [isEnergyRecharging, setIsEnergyRecharging] = useState(false);
+  const [prevEnergy, setPrevEnergy] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (
+      prevEnergy &&
+      prevEnergy < user.energy &&
+      user.energy <
+        maxPossibleEnergyTable[
+          user.energyLimitIndex as keyof typeof maxPossibleEnergyTable
+        ]
+    ) {
+      setIsEnergyRecharging(true);
+    } else {
+      setIsEnergyRecharging(false);
+    }
+    setPrevEnergy(user.energy);
+  }, [user.energy]);
 
   return (
     <div className='flex flex-col w-full px-6 gap-y-2 mt-10'>
@@ -34,7 +52,11 @@ const EnergyBar = () => {
               100
             }%`,
           }}
-          className='absolute inset-0 h-5 duration-100 bg-gradient-to-r from-yellow-400 to-yellow-600'
+          className={`absolute inset-0 h-5 duration-100 bg-gradient-to-r ${
+            isEnergyRecharging
+              ? "from-green-400 to-green-600"
+              : "from-yellow-400 to-yellow-600"
+          } `}
         ></div>
       </div>
     </div>

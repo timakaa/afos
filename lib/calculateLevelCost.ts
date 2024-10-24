@@ -9,3 +9,4 @@ export function calculateLevelCost({
 }
 
 export const DEFAULT_MULTITAP_BASE_COST = 15000;
+export const DEFAULT_ENERGY_LIMIT_BASE_COST = 20000;

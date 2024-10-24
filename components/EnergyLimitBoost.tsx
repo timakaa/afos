@@ -9,43 +9,43 @@ import { userStore } from "@/store/user.store";
 import toast from "react-hot-toast";
 import {
   calculateLevelCost,
-  DEFAULT_MULTITAP_BASE_COST,
+  DEFAULT_ENERGY_LIMIT_BASE_COST,
 } from "@/lib/calculateLevelCost";
 import CircleLoader from "./ui/CircleLoader/CircleLoader";
-import { multitapBoostCoinsPerClick } from "@/lib/boosts";
+import { maxPossibleEnergyTable } from "@/lib/boosts";
 import { priceFormatter } from "@/lib/priceFormatter";
 import ConfirmModal from "./ui/ConfirmModal";
 
-const MultitapBoost = () => {
+const EnergyLimitBoost = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const {
-    user: { multitapLevelIndex },
+    user: { energyLimitIndex },
+    setEnergyLimit,
     setCoins,
-    setMultitapLevel,
   } = userStore((state) => state);
-  const [level, setLevel] = useState(multitapLevelIndex);
+  const [level, setLevel] = useState(energyLimitIndex);
   const [maxLevelReached, setMaxLevelReached] = useState(
-    multitapLevelIndex === Object.keys(multitapBoostCoinsPerClick).length - 1,
+    energyLimitIndex === Object.keys(maxPossibleEnergyTable).length - 1,
   );
 
   useEffect(() => {
-    setLevel(multitapLevelIndex);
+    setLevel(energyLimitIndex);
     setMaxLevelReached(
-      multitapLevelIndex === Object.keys(multitapBoostCoinsPerClick).length - 1,
+      energyLimitIndex === Object.keys(maxPossibleEnergyTable).length - 1,
     );
-  }, [multitapLevelIndex]);
+  }, [energyLimitIndex]);
 
   const cost = calculateLevelCost({
     level: level + 1,
-    baseCost: DEFAULT_MULTITAP_BASE_COST,
+    baseCost: DEFAULT_ENERGY_LIMIT_BASE_COST,
   });
 
   const handleBuy = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/boosts/multitap", {
+      const response = await fetch("/api/boosts/energy-limit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,10 +58,10 @@ const MultitapBoost = () => {
       } else {
         if (data) {
           setCoins(data.coinsBalance);
-          setMultitapLevel(data.multitapLevelIndex);
+          setEnergyLimit(data.energyLimitIndex);
         }
         setIsModalOpen(false);
-        toast.success("Multitap upgraded successfully");
+        toast.success("Energy limit upgraded successfully");
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -110,25 +110,25 @@ const MultitapBoost = () => {
                     }}
                     className='absolute w-[200px] -left-3 top-6 z-20 bg-zinc-950 border border-zinc-800 p-3 rounded-md'
                   >
-                    <span>Increases the number of APHOS per click</span>
+                    <span>Increases the energy limit</span>
                     <br />
                     <br />
-                    <span>0. 1 APHOS</span>
+                    <span>0. 500 energy</span>
                     <br />
-                    <span>1. 2 APHOS</span>
+                    <span>1. 1000 energy</span>
                     <br />
-                    <span>2. 3 APHOS</span>
+                    <span>2. 2000 energy</span>
                     <br />
-                    <span>3. 5 APHOS</span>
+                    <span>3. 3000 energy</span>
                     <br />
-                    <span>4. 7 APHOS</span>
+                    <span>4. 4000 energy</span>
                   </motion.div>
                 ) : (
                   ""
                 )}
               </AnimatePresence>
             </div>
-            <div className='text-xl font-bold'>Multitap</div>
+            <div className='text-xl font-bold'>Energy Limit</div>
           </div>
           <div>
             {maxLevelReached ? (
@@ -181,7 +181,7 @@ const MultitapBoost = () => {
         setIsVisible={setIsModalOpen}
         title={`Are you sure you want ${
           level === 0 ? "to buy" : "to upgrade"
-        } the Multitap?`}
+        } the Energy Limit?`}
         description={`To level ${level + 1}`}
         onConfirm={handleBuy}
         btnText={level === 0 ? "Buy" : "Upgrade"}
@@ -192,4 +192,4 @@ const MultitapBoost = () => {
   );
 };
 
-export default MultitapBoost;
+export default EnergyLimitBoost;

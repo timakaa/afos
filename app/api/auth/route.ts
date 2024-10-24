@@ -131,7 +131,6 @@ async function findOrCreateUser(
             user.energyLimitIndex as keyof typeof maxPossibleEnergyTable
           ] || maxPossibleEnergyTable[0],
         ),
-        lastEnergyUpdateTimestamp: currentTime,
       },
       include: {
         referrals: true,

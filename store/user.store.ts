@@ -18,9 +18,12 @@ export interface UserActions {
   setIsAuth: (isAuth: boolean) => void;
   setTasks: (tasks: ITask[]) => void;
   setCoins: (coins: number) => void;
+  setEnergyLimit: (energyLimit: number) => void;
+  setMultitapLevel: (multitapLevel: number) => void;
   debouncedSync: (
     unsyncCoins: number,
     setUnsyncCoins: Dispatch<SetStateAction<number>>,
+    initialTimestamp: number,
   ) => void;
   setEnergy: (energy: number) => void;
 }
@@ -54,38 +57,49 @@ export const userStore = create<UserStore>()(
       setUser: (user) => set(() => ({ user })),
       setIsAuth: (isAuth) => set(() => ({ isAuth })),
       setTasks: (tasks) => set((state) => ({ user: { ...state.user, tasks } })),
+      setEnergyLimit: (energyLimit) =>
+        set((state) => ({
+          user: { ...state.user, energyLimitIndex: energyLimit },
+        })),
+      setMultitapLevel: (multitapLevel) =>
+        set((state) => ({
+          user: { ...state.user, multitapLevelIndex: multitapLevel },
+        })),
       setCoins: (coins) =>
         set((state) => ({ user: { ...state.user, coinsBalance: coins } })),
       setEnergy: (energy) =>
         set((state) => ({ user: { ...state.user, energy } })),
-      debouncedSync: debounce(async (unsyncCoins, setUnsyncCoins) => {
-        const {
-          user: { energy, multitapLevelIndex },
-        } = get();
-        try {
-          const response = await fetch("/api/sync", {
-            method: "POST",
-            body: JSON.stringify({
-              coins:
-                (unsyncCoins + 1) *
-                  multitapBoostCoinsPerClick[
-                    multitapLevelIndex as keyof typeof multitapBoostCoinsPerClick
-                  ] || multitapBoostCoinsPerClick[0],
-              timeStamp: Date.now(),
-              energy: energy,
-            }),
-          });
-          if (response.ok) {
-            toast.success("Coins saved");
-            setUnsyncCoins(0);
-          } else {
-            toast.error("Error while saving coins");
+      debouncedSync: debounce(
+        async (unsyncCoins, setUnsyncCoins, initialTimestamp) => {
+          const {
+            user: { energy, multitapLevelIndex },
+          } = get();
+          try {
+            const response = await fetch("/api/sync", {
+              method: "POST",
+              body: JSON.stringify({
+                coins:
+                  (unsyncCoins + 1) *
+                    multitapBoostCoinsPerClick[
+                      multitapLevelIndex as keyof typeof multitapBoostCoinsPerClick
+                    ] || multitapBoostCoinsPerClick[0],
+                timeStamp: initialTimestamp, // Use the initial timestamp
+                energy: energy - 1,
+              }),
+            });
+            if (response.ok) {
+              toast.success("Coins saved");
+              setUnsyncCoins(0);
+            } else {
+              toast.error("Error saving coins");
+            }
+          } catch (error) {
+            toast.error("Error saving coins");
+            console.error("Error saving coins:", error);
           }
-        } catch (error) {
-          toast.error("Error while saving coins");
-          console.error("Error while saving coins:", error);
-        }
-      }, 2000),
+        },
+        2000,
+      ),
     }),
     {
       name: "user",

@@ -25,6 +25,7 @@ export async function GET() {
       const isMember = ["creator", "administrator", "member"].includes(
         data.result.status,
       );
+
       const user = await prisma.user.findUnique({
         where: {
           telegramId: userId,
@@ -33,56 +34,77 @@ export async function GET() {
           tasks: true,
         },
       });
-      const task = await prisma.task.findUnique({
+
+      if (!user) {
+        return NextResponse.json(
+          { error: "User not found", isMember: false },
+          { status: 404 },
+        );
+      }
+
+      let task = await prisma.task.findUnique({
         where: {
           name: "join_community",
         },
       });
 
-      if (user && task) {
-        const updatedUser = await prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            tasks: {
-              connect: {
-                id: task.id,
-              },
-            },
-            coins: {
-              increment: task.reward,
-            },
-            coinsBalance: {
-              increment: task.reward,
-            },
-          },
-          include: {
-            tasks: true,
-          },
-        });
-
-        await prisma.task.update({
-          where: {
-            id: task.id,
-          },
-          data: {
-            usersCompleted: {
-              connect: {
-                id: updatedUser.id,
-              },
-            },
-          },
-        });
-
+      if (user.tasks.find((userTask) => userTask.id === task?.id)) {
         return NextResponse.json({
           isMember,
-          userTasks: updatedUser.tasks,
-          coins: updatedUser.coinsBalance,
+          userTasks: user.tasks,
+          coins: user.coinsBalance,
         });
       }
 
-      return NextResponse.json({ isMember, userTasks: user?.tasks });
+      if (!task) {
+        task = await prisma.task.create({
+          data: {
+            name: "join_community",
+            reward: 20000,
+          },
+        });
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          tasks: {
+            connect: {
+              id: task.id,
+            },
+          },
+          coins: {
+            increment: task.reward,
+          },
+          coinsBalance: {
+            increment: task.reward,
+          },
+        },
+        include: {
+          tasks: true,
+        },
+      });
+
+      await prisma.task.update({
+        where: {
+          id: task.id,
+        },
+        data: {
+          usersCompleted: {
+            connect: {
+              id: updatedUser.id,
+            },
+          },
+        },
+      });
+
+      return NextResponse.json({
+        isMember,
+        userTasks: updatedUser.tasks,
+        coins: updatedUser.coinsBalance,
+      });
     } else {
       throw new Error(data.description);
     }

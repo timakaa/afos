@@ -58,7 +58,12 @@ const ShopPics = () => {
         {Array(5)
           .fill(0)
           .map((_, index) => (
-            <ShopImageCard key={index} />
+            <ShopImageCard
+              key={index}
+              rate={(index + 2.5) / 2}
+              reviews={(index + 2) * 12}
+              name={`Sofa`}
+            />
           ))}
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   maxPossibleEnergyTable,
   multitapBoostCoinsPerClick,
 } from "@/lib/boosts";
+import console from "console";
 
 interface SyncRequest {
   coins: number;
@@ -78,17 +79,24 @@ export async function POST(request: Request) {
           0) as keyof typeof multitapBoostCoinsPerClick
       ] || multitapBoostCoinsPerClick[0];
     const energyRecovered = Math.min(
-      ((currentTime - timeStamp) / 1000) * energyRecoveryRate,
+      ((currentTime - user.lastEnergyUpdateTimestamp.getTime()) / 1000) *
+        energyRecoveryRate,
       energyLimit,
     );
+
+    console.log(energyLastSync);
+    console.log(energyRecovered);
+    console.log(energy);
 
     const maxAccessEnergy = Math.min(
-      energyLastSync + energyRecovered - energy,
+      energyLastSync + energyRecovered,
       energyLimit,
     );
 
-    if (energy > maxAccessEnergy) {
+    if (maxAccessEnergy - energy < 0) {
       console.log("Invalid number of energy.");
+      console.log(maxAccessEnergy);
+      console.log(energy);
       return NextResponse.json(
         { error: "Invalid number of energy." },
         { status: 400 },
@@ -97,6 +105,8 @@ export async function POST(request: Request) {
 
     const maxEarnedCoins = maxAccessEnergy * coinsPerClick;
 
+    console.log(maxEarnedCoins);
+    console.log(coins);
     if (coins > maxEarnedCoins) {
       console.log("Invalid number of coins.");
       return NextResponse.json(
@@ -111,8 +121,8 @@ export async function POST(request: Request) {
         coins: user.coins + coins,
         coinsBalance: user.coinsBalance + coins,
         energy: energy,
-        lastCoinsUpdateTimestamp: new Date(),
-        lastEnergyUpdateTimestamp: new Date(),
+        lastCoinsUpdateTimestamp: new Date(timeStamp),
+        lastEnergyUpdateTimestamp: new Date(timeStamp),
       },
     });
 
