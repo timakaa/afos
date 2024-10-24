@@ -11,6 +11,7 @@ import { persist } from "zustand/middleware";
 export interface UserState {
   user: IUserData;
   isAuth: boolean;
+  isEnergyRecovering: boolean;
 }
 
 export interface UserActions {
@@ -26,6 +27,7 @@ export interface UserActions {
     initialTimestamp: number,
   ) => void;
   setEnergy: (energy: number) => void;
+  setIsEnergyRecovering: (isEnergyRecovering: boolean) => void;
 }
 
 export type UserStore = UserState & UserActions;
@@ -48,6 +50,7 @@ export const defaultInitState: UserState = {
     createdAt: new Date(),
   },
   isAuth: false,
+  isEnergyRecovering: false,
 };
 
 export const userStore = create<UserStore>()(
@@ -69,6 +72,8 @@ export const userStore = create<UserStore>()(
         set((state) => ({ user: { ...state.user, coinsBalance: coins } })),
       setEnergy: (energy) =>
         set((state) => ({ user: { ...state.user, energy } })),
+      setIsEnergyRecovering: (isEnergyRecovering) =>
+        set(() => ({ isEnergyRecovering })),
       debouncedSync: debounce(
         async (unsyncCoins, setUnsyncCoins, initialTimestamp) => {
           const {

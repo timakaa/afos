@@ -14,9 +14,27 @@ export default function AuthLayout({
 }>) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { setUser, user, setIsAuth, setEnergy } = userStore();
+  const { setUser, user, setIsAuth, setEnergy, setIsEnergyRecovering } =
+    userStore();
+  const [prevEnergy, setPrevEnergy] = useState<number | null>(null);
 
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (
+      prevEnergy &&
+      prevEnergy < user.energy &&
+      user.energy <
+        maxPossibleEnergyTable[
+          user.energyLimitIndex as keyof typeof maxPossibleEnergyTable
+        ]
+    ) {
+      setIsEnergyRecovering(true);
+    } else {
+      setIsEnergyRecovering(false);
+    }
+    setPrevEnergy(user.energy);
+  }, [user.energy, setEnergy]);
 
   useEffect(() => {
     if (WebApp) {
@@ -114,7 +132,7 @@ export default function AuthLayout({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [user.energy, user.energyLimitIndex]);
+  }, [user.energy, user.energyLimitIndex, setEnergy]);
 
   if (isLoading)
     return (

@@ -1,7 +1,6 @@
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import Modal from "./Modal";
 import CircleLoader from "./CircleLoader/CircleLoader";
-import { title } from "process";
 
 const ConfirmModal = ({
   isVisible,

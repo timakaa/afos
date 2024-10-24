@@ -4,14 +4,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { FiInfo } from "react-icons/fi";
 import { useClickAway } from "../hooks/useClickAway";
-import Modal from "./ui/Modal";
 import { userStore } from "@/store/user.store";
 import toast from "react-hot-toast";
 import {
   calculateLevelCost,
   DEFAULT_MULTITAP_BASE_COST,
 } from "@/lib/calculateLevelCost";
-import CircleLoader from "./ui/CircleLoader/CircleLoader";
 import { multitapBoostCoinsPerClick } from "@/lib/boosts";
 import { priceFormatter } from "@/lib/priceFormatter";
 import ConfirmModal from "./ui/ConfirmModal";

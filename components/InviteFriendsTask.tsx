@@ -72,7 +72,7 @@ const InviteFriendsTask = () => {
         className='border flex justify-between items-center border-zinc-800 bg-zinc-900 cursor-pointer rounded-xl p-5'
       >
         <div className='flex gap-x-3 items-center'>
-          <div className='bg-black rounded-full w-12 h-12 flex justify-center items-center'>
+          <div className='bg-black rounded-full font-bold w-12 h-12 flex justify-center items-center'>
             2x
           </div>
           <div>
