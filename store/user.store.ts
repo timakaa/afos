@@ -1,6 +1,6 @@
 "use client";
 
-import { ITask, IUserData } from "@/interfaces/User.interface";
+import { IPhoto, ITask, IUserData } from "@/interfaces/User.interface";
 import { multitapBoostCoinsPerClick } from "@/lib/boosts";
 import { debounce } from "@/lib/debounce";
 import { Dispatch, SetStateAction } from "react";
@@ -28,6 +28,8 @@ export interface UserActions {
   ) => void;
   setEnergy: (energy: number) => void;
   setIsEnergyRecovering: (isEnergyRecovering: boolean) => void;
+  setBoughtPhotos: (boughtPhotos: IPhoto[]) => void;
+  setRatedPhotos: (ratedPhotos: IPhoto[]) => void;
 }
 
 export type UserStore = UserState & UserActions;
@@ -35,7 +37,7 @@ export type UserStore = UserState & UserActions;
 export const defaultInitState: UserState = {
   user: {
     telegramId: 0,
-    refferedById: undefined,
+    referredById: undefined,
     referredBy: undefined,
     username: "",
     referrals: [],
@@ -48,6 +50,8 @@ export const defaultInitState: UserState = {
     lastCoinsUpdateTimestamp: new Date(),
     lastEnergyUpdateTimestamp: new Date(),
     createdAt: new Date(),
+    boughtPhotos: [],
+    ratedPhotos: [],
   },
   isAuth: false,
   isEnergyRecovering: false,
@@ -105,6 +109,10 @@ export const userStore = create<UserStore>()(
         },
         2000,
       ),
+      setBoughtPhotos: (boughtPhotos) =>
+        set((state) => ({ user: { ...state.user, boughtPhotos } })),
+      setRatedPhotos: (ratedPhotos) =>
+        set((state) => ({ user: { ...state.user, ratedPhotos } })),
     }),
     {
       name: "user",

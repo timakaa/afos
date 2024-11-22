@@ -1,6 +1,7 @@
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import Modal from "./Modal";
 import CircleLoader from "./CircleLoader/CircleLoader";
+import Image from "next/image";
 
 const ConfirmModal = ({
   isVisible,
@@ -11,6 +12,7 @@ const ConfirmModal = ({
   isLoading,
   btnClass,
   btnText,
+  price,
 }: {
   isVisible: boolean;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
@@ -20,12 +22,25 @@ const ConfirmModal = ({
   isLoading?: boolean;
   btnClass?: string;
   btnText?: string;
+  price?: number;
 }) => {
   return (
     <Modal centerChildren isVisible={isVisible} setIsVisible={setIsVisible}>
-      <div className='text-center bg-zinc-900 py-5'>
-        <div className='font-bold'>{title}</div>
-        {description && <div className='text-zinc-400'>{description}</div>}
+      <div className='text-center bg-zinc-900 py-5 mx-2 rounded-lg relative'>
+        <div className={`font-bold ${price ? "pt-3" : ""}`}>{title}</div>
+        {description && <div className={`text-zinc-400`}>{description}</div>}
+        {price && (
+          <div className='absolute flex items-center gap-x-2 justify-center -top-5 left-1/2 -translate-x-1/2 bg-yellow-500 p-2 px-4 rounded-full'>
+            <span className='font-semibold'>{price}</span>
+            <Image
+              src='/aphos_logo_remove_bg.png'
+              alt='aphos'
+              width={16}
+              height={16}
+              className='-translate-y-[1px]'
+            />
+          </div>
+        )}
         <form
           className='flex justify-between px-4 mt-4'
           onSubmit={(e) => e.preventDefault()}

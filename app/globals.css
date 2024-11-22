@@ -4,7 +4,7 @@
 
 @layer components {
   .btn {
-    @apply rounded-md;
+    @apply rounded-md border-none;
   }
   @media (hover: hover) {
     .btn {
@@ -23,12 +23,12 @@
   }
 
   .btn-primary {
-    @apply bg-yellow-500 text-white;
+    @apply !bg-yellow-500 text-white;
   }
   @media (hover: hover) {
     .btn-primary {
       &:hover {
-        @apply bg-yellow-600;
+        @apply !bg-yellow-600;
       }
     }
   }

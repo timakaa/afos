@@ -8,12 +8,13 @@ export interface IUserData {
   multitapLevelIndex: number;
   referrals: IUserData[];
   referredBy?: IUserData;
-  refferedById?: number;
+  referredById?: number;
   lastCoinsUpdateTimestamp: Date;
   lastEnergyUpdateTimestamp: Date;
   tasks?: ITask[];
-  userPacks?: IUserPack[];
   createdAt: Date;
+  boughtPhotos?: IPhoto[];
+  ratedPhotos?: IPhoto[];
 }
 
 export interface ITask {
@@ -23,27 +24,15 @@ export interface ITask {
   usersCompleted: IUserData[];
 }
 
-export interface IUserPack {
-  id: number;
-  name: string;
-  packInstance: number;
-  usersCompleted: IUserData[];
-  photos: IPhoto[];
-}
-
-export interface IPack {
-  id: number;
-  name: string;
-  previewUrl: string;
-  usersBought: IUserData[];
-  userPacks: IUserPack[];
-  photos: IPhoto[];
-}
-
 export interface IPhoto {
   id: number;
-  url: string;
+  defaultUrl: string;
+  nakedUrl: string;
+  name: string;
+  price: number;
+  rating: number;
+  ratingStore: number[];
+  reviews: number;
   usersBought: IUserData[];
-  userPacks: IUserPack[];
-  pack: IPack;
+  usersRated: IUserData[];
 }

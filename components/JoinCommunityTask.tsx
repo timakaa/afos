@@ -42,6 +42,7 @@ const JoinCommunityTask = () => {
         }
       } else {
         toast.error("You have not joined the community yet.");
+        setIsJoinOpen(false);
       }
     } catch (error) {
       toast.error("An error occurred during the check.");

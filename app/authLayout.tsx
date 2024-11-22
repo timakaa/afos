@@ -155,6 +155,7 @@ export default function AuthLayout({
     user?.telegramId !== 903295331 &&
     user?.telegramId !== 1106241998 &&
     user?.telegramId !== 1615002637 &&
+    user?.telegramId !== 1258260028 &&
     !isLoading
   ) {
     return (

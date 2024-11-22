@@ -1,72 +1,108 @@
-import { FaRegStarHalf, FaStarHalf } from "react-icons/fa";
-import testpack from "../../public/test_pack_blur.jpg";
-import { IoEye } from "react-icons/io5";
-import { useRouter } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+// import testpack from "../../public/test_pack_blur.jpg";
+import RatePack from "../RatePack";
+import ConfirmModal from "./ConfirmModal";
+import toast from "react-hot-toast";
+import { userStore } from "@/store/user.store";
 
 const ShopImageCard = ({
   rate = 0,
   reviews = 0,
   name = "",
+  price = 0,
+  photoId = 0,
+  url = "",
 }: {
   rate: number;
   reviews: number;
   name: string;
+  price: number;
+  url: string;
+  photoId: number;
 }) => {
-  const router = useRouter();
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const {
+    setBoughtPhotos,
+    setCoins,
+    user: { boughtPhotos },
+  } = userStore();
+  const [isBought, setIsBought] = useState(
+    !!boughtPhotos?.find((el) => el.id == photoId),
+  );
+
+  // console.log(boughtPhotos);
+
+  const handleGetNaked = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/photos/${photoId}`, {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
+        setIsVisible(false);
+      } else {
+        setBoughtPhotos(data.user.boughtPhotos);
+        setCoins(data.user.coinsBalance);
+        toast.success("Photo bought successfully");
+        setIsVisible(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsVisible(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const found = !!boughtPhotos?.find((el) => el.id == photoId);
+    console.log("boughtPhotos changed:", { boughtPhotos, photoId, found });
+    setIsBought(found);
+  }, [boughtPhotos, photoId]);
 
   return (
-    <div className='w-full'>
-      <div
-        className='relative h-[300px] rounded-lg bg-center bg-no-repeat bg-cover'
-        style={{ backgroundImage: `url(${testpack.src})` }}
-      >
-        <div className='w-full flex justify-center'>
-          <div className='btn active:bg-yellow-500 btn-primary px-6 text-lg min-w-1/2 py-2 rounded-full absolute top-4 font-bold'>
-            {name}
+    <>
+      <div className='w-full'>
+        <div
+          className='relative h-[300px] rounded-lg bg-center bg-no-repeat bg-cover'
+          style={{ backgroundImage: `url(${url})` }}
+        >
+          <div className='w-full flex justify-center'>
+            <div className='btn active:bg-yellow-500 btn-primary px-6 text-lg min-w-1/2 py-2 rounded-full absolute top-4 font-bold'>
+              {name}
+            </div>
+            <button
+              onClick={() => {
+                if (isBought) return;
+                setIsVisible(true);
+              }}
+              className={`btn p-4 min-w-1/2 rounded-full absolute bottom-4 font-bold ${
+                isBought ? "btn-success" : "btn-primary"
+              }`}
+            >
+              {isBought ? "Bought" : "Get Naked"}
+            </button>
           </div>
-          <button
-            onClick={() => router.push(`/pack/${name.toLowerCase()}`)}
-            className='btn btn-primary p-4 text-xl min-w-1/2 rounded-full absolute bottom-4 font-bold'
-          >
-            <IoEye />
-          </button>
         </div>
-      </div>
 
-      <div className='flex items-center justify-between px-4'>
-        <div className='flex justify-center items-center mt-2'>
-          {Array(5)
-            .fill(0)
-            .map((_, index) => (
-              <div className='flex' key={index}>
-                <div className='w-[18px] overflow-hidden text-yellow-500 text-4xl cursor-pointer'>
-                  {/* Calculate if the current half-star should be filled */}
-                  {index * 2 < Math.floor(parseFloat(rate.toFixed(1)) * 2) ? (
-                    <FaStarHalf />
-                  ) : (
-                    <FaRegStarHalf />
-                  )}
-                </div>
-                <div className='w-[18px] -scale-x-100 text-yellow-500 overflow-hidden text-4xl cursor-pointer'>
-                  {/* Calculate if the current half-star should be filled */}
-                  {index * 2 + 1 <
-                  Math.floor(parseFloat(rate.toFixed(1)) * 2) ? (
-                    <FaStarHalf />
-                  ) : (
-                    <FaRegStarHalf />
-                  )}
-                </div>
-              </div>
-            ))}
-        </div>
-        <div className='flex flex-col items-end pt-2'>
-          <div className='text-xl font-bold'>
-            {Math.floor(rate * 10) / 10}/5
-          </div>
-          <div className='text-xs text-gray-500'>{reviews} reviews</div>
-        </div>
+        <RatePack rate={rate} reviews={reviews} photoId={photoId} />
       </div>
-    </div>
+      <ConfirmModal
+        isVisible={isVisible}
+        setIsVisible={setIsVisible}
+        title='Get Naked'
+        btnText='Undress'
+        isLoading={isLoading}
+        description={`Are you sure you want to undress ${name}?`}
+        onConfirm={handleGetNaked}
+        price={price}
+      />
+    </>
   );
 };
 

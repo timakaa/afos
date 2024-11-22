@@ -1,115 +1,37 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import testpackblur from "../../public/test_pack_blur.jpg";
-import Modal from "./Modal";
-import { motion } from "framer-motion";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Zoom } from "swiper/modules";
+import React from "react";
 import Image from "next/image";
-import fetchProtectedImage from "@/lib/fetchProtectedImage";
+import CountDown from "./CountDown";
+import { Photo } from "@prisma/client";
 
-const ProfileImageCard = () => {
-  const [isClicked, setIsClicked] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDelete, setIsDelete] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-
-  useEffect(() => {
-    if (isClicked) {
-      setTimeout(() => {
-        setIsDelete(true);
-      }, 200);
-    }
-  }, [isClicked]);
-
-  useEffect(() => {
-    function loadImage() {
-      try {
-        fetchProtectedImage()
-          .then((url) => {
-            setImageUrl(url);
-          })
-          .catch((error) => {
-            console.error("Ошибка загрузки изображения", error);
-          });
-      } catch (error) {
-        console.error("Ошибка загрузки изображения", error);
-      }
-    }
-
-    loadImage();
-  }, []);
-
+const ProfileImageCard = ({ photo }: { photo: Photo }) => {
   return (
     <>
-      <button
-        onClick={() => setIsClicked(true)}
-        className={`w-full text-center relative h-[300px] ${
-          isClicked
-            ? ""
-            : 'before:content-["See"] before:absolute before:block before:z-30 before:left-1/2 before:top-1/2 before:text-white before:text-3xl before:font-bold before:-translate-x-1/2 before:-translate-y-1/2'
-        }`}
-      >
+      <button className={`w-full text-center relative h-[300px]`}>
+        <div className='absolute top-0 left-0 right-0 flex justify-center z-20 -translate-y-6'>
+          <div className='btn btn-primary !bg-yellow-600 py-1 px-4 rounded-full'>
+            {photo.name}
+          </div>
+        </div>
         <div>
           <Image
             alt=''
-            src={testpackblur}
-            className={`absolute max-h-[300px] w-full mx-auto inset-0 rounded-lg object-cover bg-center ${
-              isClicked ? "opacity-0" : "opacity-100"
-            } ${
-              isDelete ? "hidden" : "block"
-            } z-10 duration-100 bg-no-repeat bg-cover`}
+            src={photo.defaultUrl}
+            width={0}
+            height={0}
+            unoptimized
+            className={`absolute h-[300px] w-full mx-auto inset-0 rounded-lg object-cover`}
           />
-          <Image
-            onClick={() => setIsModalOpen(true)}
-            src={imageUrl}
-            alt=''
-            width={300}
-            height={300}
-            className='absolute max-h-[300px] w-full object-cover mx-auto inset-0 rounded-lg bg-center duration-100 bg-no-repeat bg-cover'
-          />
+          <div className='absolute inset-0 bg-gradient-to-b from-black/90 via-black/85 to-black/90' />
+          <div className='grid place-items-center relative z-20'>
+            <div>
+              <div className='mb-2 font-semibold'>You will see it in</div>
+              <CountDown />
+            </div>
+          </div>
         </div>
       </button>
-      <Modal
-        isVisible={isModalOpen}
-        setIsVisible={setIsModalOpen}
-        centerChildren
-      >
-        <div className='flex h-full justify-center mx-auto'>
-          <Swiper
-            modules={[Zoom]}
-            centeredSlides
-            cssMode
-            slidesPerView={1}
-            zoom={true}
-            className='overflow-hidden'
-          >
-            <SwiperSlide>
-              <div className='swiper-zoom-container flex justify-center'>
-                <motion.div
-                  initial='from'
-                  animate='to'
-                  exit='from'
-                  variants={{
-                    from: { width: "50%", height: "50%", opacity: 0 },
-                    to: { width: "100%", height: "100%", opacity: 1 },
-                  }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
-                >
-                  <Image
-                    height={300}
-                    width={300}
-                    alt=''
-                    src={imageUrl}
-                    className='object-cover w-auto h-auto'
-                  />
-                </motion.div>
-              </div>
-            </SwiperSlide>
-          </Swiper>
-        </div>
-      </Modal>
     </>
   );
 };

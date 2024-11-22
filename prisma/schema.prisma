@@ -14,24 +14,23 @@ datasource db {
 }
 
 model User {
-  id                        Int        @id @default(autoincrement())
-  telegramId                Int        @unique
+  id                        Int      @id @default(autoincrement())
+  telegramId                Int      @unique
   username                  String?
-  coins                     Int        @default(0)
-  coinsBalance              Int        @default(0)
-  userPacks                 UserPack[]
-  packs                     Pack[]
-  photos                    Photo[]
-  referrals                 User[]     @relation("Refferals")
-  referredBy                User?      @relation("Refferals", fields: [referredById], references: [id])
+  coins                     Int      @default(0)
+  coinsBalance              Int      @default(0)
+  boughtPhotos              Photo[]  @relation("UserBoughtPhotos")
+  ratedPhotos               Photo[]  @relation("UserRatedPhotos")
+  referrals                 User[]   @relation("Refferals")
+  referredBy                User?    @relation("Refferals", fields: [referredById], references: [id])
   referredById              Int?
   tasks                     Task[]
-  lastCoinsUpdateTimestamp  DateTime   @default(now())
-  lastEnergyUpdateTimestamp DateTime   @default(now())
-  energy                    Int        @default(500)
-  multitapLevelIndex        Int        @default(0)
-  energyLimitIndex          Int        @default(0)
-  createdAt                 DateTime   @default(now())
+  lastCoinsUpdateTimestamp  DateTime @default(now())
+  lastEnergyUpdateTimestamp DateTime @default(now())
+  energy                    Int      @default(500)
+  multitapLevelIndex        Int      @default(0)
+  energyLimitIndex          Int      @default(0)
+  createdAt                 DateTime @default(now())
 }
 
 model Task {
@@ -41,29 +40,15 @@ model Task {
   usersCompleted User[]
 }
 
-model Pack {
-  id          Int        @id @default(autoincrement())
-  previewUrl  String
-  name        String
-  usersBought User[]
-  userPacks   UserPack[]
-  photos      Photo[]
-}
-
-model UserPack {
-  id           Int     @id @default(autoincrement())
-  packInstance Pack    @relation(fields: [packId], references: [id])
-  packId       Int
-  user         User    @relation(fields: [userId], references: [id])
-  userId       Int
-  photos       Photo[]
-}
-
 model Photo {
-  id          Int        @id @default(autoincrement())
-  url         String
-  usersBought User[]
-  userPacks   UserPack[]
-  pack        Pack?      @relation(fields: [packId], references: [id])
-  packId      Int?
+  id          Int    @id @default(autoincrement())
+  defaultUrl  String
+  nakedUrl    String
+  name        String
+  price       Int
+  rating      Int    @default(0)
+  ratingStore Int[]  @default([])
+  reviews     Int    @default(0)
+  usersBought User[] @relation("UserBoughtPhotos")
+  usersRated  User[] @relation("UserRatedPhotos")
 }

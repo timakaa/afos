@@ -51,6 +51,7 @@ const InviteFriendsTask = () => {
         }
       } else {
         toast.error("You have not invited 5 friends yet.");
+        setIsJoinOpen(false);
       }
     } catch (error) {
       toast.error("An error occurred during the check.");

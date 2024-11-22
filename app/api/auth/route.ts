@@ -31,9 +31,10 @@ async function createUserWithReferral(
         },
         include: {
           referrals: true,
-          userPacks: true,
           tasks: true,
           referredBy: true,
+          boughtPhotos: true,
+          ratedPhotos: true,
         },
       });
 
@@ -53,9 +54,10 @@ async function createUserWithReferral(
         },
         include: {
           referrals: true,
-          userPacks: true,
           tasks: true,
           referredBy: true,
+          boughtPhotos: true,
+          ratedPhotos: true,
         },
       });
     } else {
@@ -67,9 +69,10 @@ async function createUserWithReferral(
         },
         include: {
           referrals: true,
-          userPacks: true,
           tasks: true,
           referredBy: true,
+          boughtPhotos: true,
+          ratedPhotos: true,
         },
       });
     }
@@ -82,9 +85,10 @@ async function createUserWithReferral(
       },
       include: {
         referrals: true,
-        userPacks: true,
         tasks: true,
         referredBy: true,
+        boughtPhotos: true,
+        ratedPhotos: true,
       },
     });
   }
@@ -101,9 +105,10 @@ async function findOrCreateUser(
     where: { telegramId },
     include: {
       referrals: true,
-      userPacks: true,
       tasks: true,
       referredBy: true,
+      boughtPhotos: true,
+      ratedPhotos: true,
     },
   });
 
@@ -134,9 +139,10 @@ async function findOrCreateUser(
       },
       include: {
         referrals: true,
-        userPacks: true,
         tasks: true,
         referredBy: true,
+        boughtPhotos: true,
+        ratedPhotos: true,
       },
     });
   } else {
