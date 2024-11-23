@@ -5,6 +5,7 @@ import RatePack from "../RatePack";
 import ConfirmModal from "./ConfirmModal";
 import toast from "react-hot-toast";
 import { userStore } from "@/store/user.store";
+import Image from "next/image";
 
 const ShopImageCard = ({
   rate = 0,
@@ -65,10 +66,13 @@ const ShopImageCard = ({
   return (
     <>
       <div className='w-full'>
-        <div
-          className='relative h-[300px] rounded-lg bg-center bg-no-repeat bg-cover'
-          style={{ backgroundImage: `url(${url})` }}
-        >
+        <div className='relative h-[300px] rounded-lg bg-center bg-no-repeat bg-cover'>
+          <Image
+            src={url}
+            alt={name}
+            fill
+            className='object-cover absolute inset-0'
+          />
           <div className='w-full flex justify-center'>
             <div className='btn opacity-80 active:bg-yellow-500 btn-primary px-6 text-lg min-w-1/2 py-2 rounded-full absolute top-4 font-bold'>
               {name}
