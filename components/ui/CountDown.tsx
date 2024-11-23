@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 
 const CountDown = () => {
-  const targetDate = useMemo(() => new Date("2024-11-23T00:00:00"), []);
+  const targetDate = useMemo(() => new Date("2024-12-10T00:00:00"), []);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,

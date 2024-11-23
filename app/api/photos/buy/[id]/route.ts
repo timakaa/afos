@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -59,6 +60,8 @@ export async function POST(
       boughtPhotos: true,
     },
   });
+
+  revalidatePath("/profile", "layout");
 
   return NextResponse.json(
     { success: true, user: updatedUser },

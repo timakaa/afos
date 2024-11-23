@@ -1,58 +1,72 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import ShopImageCard from "./ui/ShopImageCard";
+import ShopImageCard from "@/components/ui/ShopImageCard";
+import CircleLoader from "@/components/ui/CircleLoader/CircleLoader";
 import { Photo } from "@prisma/client";
-import CircleLoader from "./ui/CircleLoader/CircleLoader";
 
-const ShopPics = () => {
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const limit = 10;
+interface ShopPicsClientProps {
+  initialData: {
+    photos: Photo[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  };
+}
+
+export default function ShopPics({ initialData }: ShopPicsClientProps) {
+  const [currentPage, setCurrentPage] = useState(initialData.pagination.page);
+  const [allPhotos, setAllPhotos] = useState<Photo[]>(initialData.photos);
+  const [hasMore, setHasMore] = useState(
+    currentPage < initialData.pagination.totalPages,
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchPhotos = async () => {
+    if (isLoading) return;
+
     try {
-      console.log("Fetching page:", currentPage); // Для отладки
+      setIsLoading(true);
+      const nextPage = currentPage + 1;
 
-      const res = await fetch(`/api/photos?page=${currentPage}&limit=${limit}`);
-      const data = await res.json();
+      // Используем параллельный маршрут для загрузки данных
+      const response = await fetch(`/api/photos/${nextPage}`);
+      const data = await response.json();
 
-      const newPhotos = data.photos;
-
-      setPhotos((prevPhotos) => {
-        const uniquePhotos = [...prevPhotos];
-        newPhotos.forEach((photo: Photo) => {
-          if (!prevPhotos.some((p) => p.id === photo.id)) {
-            uniquePhotos.push(photo);
-          }
+      if (data.photos?.length > 0) {
+        setAllPhotos((prevPhotos) => {
+          const uniquePhotos = [...prevPhotos];
+          data.photos.forEach((photo: Photo) => {
+            if (!prevPhotos.some((p) => p.id === photo.id)) {
+              uniquePhotos.push(photo);
+            }
+          });
+          return uniquePhotos;
         });
-        return uniquePhotos;
-      });
 
-      // Проверяем, есть ли еще фотографии для загрузки
-      const hasMorePhotos =
-        photos.length + newPhotos.length < data.pagination.total;
-      setHasMore(hasMorePhotos);
-
-      if (hasMorePhotos && newPhotos.length > 0) {
-        setCurrentPage(currentPage + 1);
+        setCurrentPage(nextPage);
+        setHasMore(
+          data.photos.length > 0 && nextPage < data.pagination.totalPages,
+        );
+      } else {
+        setHasMore(false);
       }
     } catch (error) {
       console.error("Error fetching photos:", error);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  // Initial load
-  useEffect(() => {
-    fetchPhotos();
-  }, []);
 
   return (
     <div id='scrollableDiv' style={{ height: "100vh", overflow: "auto" }}>
       <InfiniteScroll
-        dataLength={photos.length}
+        dataLength={allPhotos.length}
         next={fetchPhotos}
         hasMore={hasMore}
         loader={
@@ -67,7 +81,7 @@ const ShopPics = () => {
         className='flex flex-col px-4 py-5 gap-y-5'
         scrollableTarget='scrollableDiv'
       >
-        {photos.map((photo) => (
+        {allPhotos.map((photo) => (
           <ShopImageCard
             key={photo.id}
             photoId={photo.id}
@@ -81,6 +95,4 @@ const ShopPics = () => {
       </InfiniteScroll>
     </div>
   );
-};
-
-export default ShopPics;
+}

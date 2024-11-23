@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function POST(
   request: Request,
@@ -82,6 +83,11 @@ export async function POST(
       },
     },
   });
+
+  // Принудительное обновление всех маршрутов, связанных с фотографиями
+  revalidatePath("/api/photos/[page]", "layout");
+  // Если у вас есть другие маршруты, которые тоже нужно обновить
+  revalidatePath("/shop/pics", "page"); // если у вас есть страница магазина
 
   return NextResponse.json(
     { success: true, user: updatedUser, photo: updatedPhoto },

@@ -31,7 +31,9 @@ const ConfirmModal = ({
         {description && <div className={`text-zinc-400`}>{description}</div>}
         {price && (
           <div className='absolute flex items-center gap-x-2 justify-center -top-5 left-1/2 -translate-x-1/2 bg-yellow-500 p-2 px-4 rounded-full'>
-            <span className='font-semibold'>{price}</span>
+            <span className='font-semibold'>
+              {new Intl.NumberFormat("id-ID").format(price)}
+            </span>
             <Image
               src='/aphos_logo_remove_bg.png'
               alt='aphos'

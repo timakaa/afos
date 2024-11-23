@@ -2,6 +2,7 @@
 
 import Spinner from "@/components/ui/Spinner/Spinner";
 import { maxPossibleEnergyTable } from "@/lib/boosts";
+import { isMobileDevice } from "@/lib/isMobileDevice";
 import { userStore } from "@/store/user.store";
 import WebApp from "@twa-dev/sdk";
 import { usePathname, useRouter } from "next/navigation";
@@ -151,11 +152,11 @@ export default function AuthLayout({
 
   if (
     user.telegramId &&
-    user?.telegramId !== 1205582492 &&
-    user?.telegramId !== 903295331 &&
-    user?.telegramId !== 1106241998 &&
-    user?.telegramId !== 1615002637 &&
-    user?.telegramId !== 1258260028 &&
+    // user?.telegramId !== 1205582492 &&
+    // user?.telegramId !== 903295331 &&
+    // user?.telegramId !== 1106241998 &&
+    // user?.telegramId !== 1615002637 &&
+    // user?.telegramId !== 1258260028 &&
     !isLoading
   ) {
     return (
@@ -165,13 +166,13 @@ export default function AuthLayout({
     );
   }
 
-  // if (!isMobileDevice()) {
-  //   return (
-  //     <div className='bg-black text-white h-screen grid place-items-center'>
-  //       <div className='font-bold text-3xl'>Play on your phone</div>
-  //     </div>
-  //   );
-  // }
+  if (!isMobileDevice()) {
+    return (
+      <div className='bg-black text-white h-screen grid place-items-center'>
+        <div className='font-bold text-3xl'>Play on your phone</div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

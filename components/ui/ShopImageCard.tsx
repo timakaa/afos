@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import testpack from "../../public/test_pack_blur.jpg";
 import RatePack from "../RatePack";
 import ConfirmModal from "./ConfirmModal";
 import toast from "react-hot-toast";
@@ -33,12 +32,10 @@ const ShopImageCard = ({
     !!boughtPhotos?.find((el) => el.id == photoId),
   );
 
-  // console.log(boughtPhotos);
-
   const handleGetNaked = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/photos/${photoId}`, {
+      const response = await fetch(`/api/photos/buy/${photoId}`, {
         method: "POST",
       });
       const data = await response.json();
@@ -73,7 +70,7 @@ const ShopImageCard = ({
           style={{ backgroundImage: `url(${url})` }}
         >
           <div className='w-full flex justify-center'>
-            <div className='btn active:bg-yellow-500 btn-primary px-6 text-lg min-w-1/2 py-2 rounded-full absolute top-4 font-bold'>
+            <div className='btn opacity-80 active:bg-yellow-500 btn-primary px-6 text-lg min-w-1/2 py-2 rounded-full absolute top-4 font-bold'>
               {name}
             </div>
             <button
