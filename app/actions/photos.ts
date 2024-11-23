@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { IPhoto } from "@/interfaces/User.interface";
+import { IPagination } from "@/interfaces/Pagination.interface";
 
-export async function getPhotos(page: number = 1) {
+export async function getPhotos(
+  page: number = 1,
+): Promise<{ photos: IPhoto[]; pagination: IPagination }> {
   const limit = 30;
   const skip = (page - 1) * limit;
   const [photos, totalPhotos] = await Promise.all([
@@ -18,7 +22,7 @@ export async function getPhotos(page: number = 1) {
   revalidatePath("/shop/pics", "page");
 
   return {
-    photos,
+    photos: photos as IPhoto[],
     pagination: {
       total: totalPhotos,
       page,

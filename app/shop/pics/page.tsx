@@ -1,22 +1,24 @@
 import { Suspense } from "react";
 import CircleLoader from "@/components/ui/CircleLoader/CircleLoader";
 import ShopPics from "@/components/ShopPics";
-import { IPhoto } from "@/interfaces/User.interface";
 import { getPhotos } from "@/app/actions/photos";
+import { IPhoto } from "@/interfaces/User.interface";
+import { IPagination } from "@/interfaces/Pagination.interface";
 
 export const revalidate = 30;
 
-export async function generateStaticParams() {
-  const photos: IPhoto[] = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/photos/1`,
-  ).then((res) => res.json());
-  return photos.map((photo) => ({
-    id: String(photo.id),
-  }));
-}
-
 export default async function ShopPage() {
-  const initialData = await getPhotos();
+  let initialData: { photos: IPhoto[]; pagination: IPagination } = {
+    photos: [],
+    pagination: { total: 0, page: 1, limit: 30, totalPages: 1 },
+  };
+
+  try {
+    initialData = await getPhotos();
+  } catch (error) {
+    console.error("Failed to fetch photos:", error);
+    // Continue with empty array
+  }
 
   return (
     <Suspense
