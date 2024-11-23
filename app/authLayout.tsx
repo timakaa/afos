@@ -150,21 +150,21 @@ export default function AuthLayout({
     );
   }
 
-  if (
-    user.telegramId &&
-    user?.telegramId !== 1205582492 &&
-    user?.telegramId !== 903295331 &&
-    user?.telegramId !== 1106241998 &&
-    user?.telegramId !== 1615002637 &&
-    user?.telegramId !== 1258260028 &&
-    !isLoading
-  ) {
-    return (
-      <div className='bg-black text-white min-h-screen grid place-items-center '>
-        <div className='font-bold text-3xl'>You are not allowed</div>
-      </div>
-    );
-  }
+  // if (
+  //   user.telegramId &&
+  //   user?.telegramId !== 1205582492 &&
+  //   user?.telegramId !== 903295331 &&
+  //   user?.telegramId !== 1106241998 &&
+  //   user?.telegramId !== 1615002637 &&
+  //   user?.telegramId !== 1258260028 &&
+  //   !isLoading
+  // ) {
+  //   return (
+  //     <div className='bg-black text-white min-h-screen grid place-items-center '>
+  //       <div className='font-bold text-3xl'>You are not allowed</div>
+  //     </div>
+  //   );
+  // }
 
   if (!isMobileDevice()) {
     return (
