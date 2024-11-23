@@ -15,7 +15,7 @@ async function createUserWithReferral(
 
   if (referralTelegramId && referralTelegramId !== telegramId) {
     const referralUser = await prisma.user.findUnique({
-      where: { telegramId: referralTelegramId },
+      where: { telegramId: String(referralTelegramId) },
     });
 
     if (referralUser) {
@@ -24,7 +24,7 @@ async function createUserWithReferral(
           coins: 1000,
           coinsBalance: 1000,
           username,
-          telegramId,
+          telegramId: String(telegramId),
           referredBy: {
             connect: { id: referralUser.id },
           },
@@ -40,7 +40,7 @@ async function createUserWithReferral(
 
       // Update user referrals
       await prisma.user.update({
-        where: { telegramId: referralTelegramId },
+        where: { telegramId: String(referralTelegramId) },
         data: {
           referrals: {
             connect: { id: newUser.id },
@@ -65,7 +65,7 @@ async function createUserWithReferral(
       newUser = await prisma.user.create({
         data: {
           username,
-          telegramId,
+          telegramId: String(telegramId),
         },
         include: {
           referrals: true,
@@ -81,7 +81,7 @@ async function createUserWithReferral(
     newUser = await prisma.user.create({
       data: {
         username,
-        telegramId,
+        telegramId: String(telegramId),
       },
       include: {
         referrals: true,
@@ -102,7 +102,7 @@ async function findOrCreateUser(
   start?: string | null,
 ) {
   let user = await prisma.user.findUnique({
-    where: { telegramId },
+    where: { telegramId: String(telegramId) },
     include: {
       referrals: true,
       tasks: true,
@@ -128,7 +128,7 @@ async function findOrCreateUser(
 
     // Update user energy
     user = await prisma.user.update({
-      where: { telegramId },
+      where: { telegramId: String(telegramId) },
       data: {
         energy: Math.min(
           user.energy + energyRecovered,
