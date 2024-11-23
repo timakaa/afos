@@ -15,7 +15,7 @@ datasource db {
 
 model User {
   id                        Int      @id @default(autoincrement())
-  telegramId                Int      @unique
+  telegramId                String   @unique
   username                  String?
   coins                     Int      @default(0)
   coinsBalance              Int      @default(0)
