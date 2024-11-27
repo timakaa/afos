@@ -111,15 +111,15 @@ const EnergyLimitBoost = () => {
                     <span>Increases the energy limit</span>
                     <br />
                     <br />
-                    <span>0. 500 energy</span>
+                    <span>0. 500 energy * 2</span>
                     <br />
-                    <span>1. 1000 energy</span>
+                    <span>1. 1000 energy * 2</span>
                     <br />
-                    <span>2. 2000 energy</span>
+                    <span>2. 2000 energy * 2</span>
                     <br />
-                    <span>3. 3000 energy</span>
+                    <span>3. 3000 energy * 2</span>
                     <br />
-                    <span>4. 4000 energy</span>
+                    <span>4. 4000 energy * 2</span>
                   </motion.div>
                 ) : (
                   ""

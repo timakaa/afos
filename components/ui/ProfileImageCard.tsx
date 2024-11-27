@@ -18,9 +18,7 @@ const ProfileImageCard = ({ photo }: { photo: Photo }) => {
           <Image
             alt=''
             src={photo.defaultUrl}
-            width={0}
-            height={0}
-            unoptimized
+            fill
             className={`absolute h-[300px] w-full mx-auto inset-0 rounded-lg object-cover`}
           />
           <div className='absolute inset-0 bg-gradient-to-b from-black/90 via-black/85 to-black/90' />

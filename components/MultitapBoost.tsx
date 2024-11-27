@@ -111,15 +111,15 @@ const MultitapBoost = () => {
                     <span>Increases the number of APHOS per click</span>
                     <br />
                     <br />
-                    <span>0. 1 APHOS</span>
+                    <span>0. 1 APHOS * 4</span>
                     <br />
-                    <span>1. 2 APHOS</span>
+                    <span>1. 2 APHOS * 4</span>
                     <br />
-                    <span>2. 3 APHOS</span>
+                    <span>2. 3 APHOS * 4</span>
                     <br />
-                    <span>3. 5 APHOS</span>
+                    <span>3. 5 APHOS * 4</span>
                     <br />
-                    <span>4. 7 APHOS</span>
+                    <span>4. 7 APHOS * 4</span>
                   </motion.div>
                 ) : (
                   ""
