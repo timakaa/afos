@@ -26,7 +26,7 @@ export async function POST(
   if (!user)
     return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  if (user.ratedPhotos.find((photo) => photo.id === Number(photoId)))
+  if (user.ratedPhotos.find((photo: any) => photo.id === Number(photoId)))
     return NextResponse.json({ error: "Photo already rated" }, { status: 400 });
 
   const photo = await prisma.photo.findUnique({

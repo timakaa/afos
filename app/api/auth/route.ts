@@ -2,6 +2,7 @@ import { maxPossibleEnergyTable } from "@/lib/boosts";
 import { prisma } from "@/lib/prisma";
 import { encrypt, SESSION_DURATION } from "@/lib/session";
 import { validateTelegramWebAppData } from "@/lib/telegramAuth";
+import { User } from "@prisma/client";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,8 +11,8 @@ async function createUserWithReferral(
   telegramId: number,
   username: string | undefined,
   referralTelegramId?: number,
-) {
-  let newUser;
+): Promise<User> {
+  let newUser: User;
 
   if (referralTelegramId && referralTelegramId !== telegramId) {
     const referralUser = await prisma.user.findUnique({
@@ -93,15 +94,15 @@ async function createUserWithReferral(
     });
   }
 
-  return newUser;
+  return newUser as User;
 }
 
 async function findOrCreateUser(
   telegramId: number,
   username: string | undefined,
   start?: string | null,
-) {
-  let user = await prisma.user.findUnique({
+): Promise<User> {
+  let user: User | null = await prisma.user.findUnique({
     where: { telegramId: String(telegramId) },
     include: {
       referrals: true,
@@ -154,7 +155,7 @@ async function findOrCreateUser(
     );
   }
 
-  return user;
+  return user as User;
 }
 
 export async function POST(request: NextRequest) {
